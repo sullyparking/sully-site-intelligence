@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Sully Site Intelligence</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    :root {
+      --sully-blue: #2F6BFF;
+      --light-blue: #C8E6FE;
+      --navy: #003087;
+      --midnight: #001F54;
+      --gray: #B4B4B4;
+      --light-gray: #F5F7FA;
+      --border: #E1E6EF;
+      --green: #16855B;
+      --red: #C93C3C;
+      --orange: #C97716;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #172033;
+      background: #fff;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 68px 1fr;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      z-index: 1000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--sully-blue);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--midnight);
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: #697386;
+      font-size: 12px;
+    }
+
+    .rule-badge {
+      background: #EAF8F1;
+      color: #08734C;
+      border: 1px solid #C7ECDD;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 330px 1fr 350px;
+      min-height: 0;
+    }
+
+    aside {
+      background: white;
+      overflow-y: auto;
+      z-index: 800;
+    }
+
+    .left {
+      border-right: 1px solid var(--border);
+    }
+
+    .right {
+      border-left: 1px solid var(--border);
+    }
+
+    .section {
+      padding: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .source-notice {
+      background: #EDF3FF;
+      color: #33435F;
+      padding: 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .source-notice strong {
+      color: var(--midnight);
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #D5DCE8;
+      border-radius: 8px;
+      padding: 11px;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--sully-blue);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 12px;
+      background: #FAFBFD;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      color: var(--midnight);
+    }
+
+    .stat span {
+      font-size: 11px;
+      color: #737E91;
+    }
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--midnight);
+    }
+
+    .layer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 13px 0;
+      font-size: 13px;
+    }
+
+    .layer-info strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .layer-info span {
+      color: #7C8798;
+      font-size: 10px;
+    }
+
+    .switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #CBD2DD;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+
+    .slider:before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .switch input:checked + .slider {
+      background: var(--sully-blue);
+    }
+
+    .switch input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+
+    .zoning-list {
+      max-height: 290px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .zone-item {
+      padding: 9px 10px;
+      border-bottom: 1px solid #EEF1F5;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .zone-item:last-child {
+      border-bottom: 0;
+    }
+
+    .screen-box {
+      background: #EAF8F1;
+      color: #08734C;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #E8EDF5;
+      z-index: 1;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 15px 5px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #697386;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--sully-blue);
+      border-bottom-color: var(--sully-blue);
+    }
+
+    .panel {
+      display: none;
+      padding: 18px;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .empty {
+      color: #788396;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .property-title {
+      color: var(--midnight);
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .parcel {
+      color: #778195;
+      font-size: 11px;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #6E788B;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .qualification {
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .yes {
+      background: #EAF8F1;
+      color: var(--green);
+    }
+
+    .no {
+      background: #FCECEC;
+      color: var(--red);
+    }
+
+    .unknown {
+      background: #FFF5E5;
+      color: var(--orange);
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      width: 100%;
+      background: var(--sully-blue);
+      color: white;
+    }
+
+    .result {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .result:hover {
+      background: #F5F8FF;
+    }
+
+    .result strong {
+      display: block;
+      color: var(--midnight);
+      margin-bottom: 3px;
+    }
+
+    .result span {
+      color: #778195;
+    }
+
+    .legend {
+      position: absolute;
+      left: 345px;
+      bottom: 18px;
+      z-index: 500;
+      background: rgba(255,255,255,.95);
+      padding: 10px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.12);
+      font-size: 10px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--sully-blue);
+      margin-right: 5px;
+    }
+
+    @media (max-width: 1000px) {
+      .workspace {
+        grid-template-columns: 280px 1fr;
+      }
+
+      .right {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <div class="logo">S</div>
+
+      <div>
+        <h1>Sully Site Intelligence</h1>
+        <p>PDF-derived Birmingham zoning + Land Bank acquisition intelligence</p>
+      </div>
+    </div>
+
+    <div class="rule-badge">
+      C1 • C2 • I1 = YES
+    </div>
+  </header>
+
+  <div class="workspace">
+
+    <!-- LEFT PANEL -->
+
+    <aside class="left">
+
+      <div class="section">
+        <div class="source-notice">
+          <strong>DATA SOURCE</strong><br>
+          Zoning is derived only from the 24 Birmingham zoning PDFs supplied by Sully.
+          Land Bank opportunities are derived only from the supplied Land Bank CSV.
+        </div>
+      </div>
+
+      <div class="section">
+
+        <input
+          id="search"
+          type="search"
+          placeholder="Search address or Parcel ID"
+        />
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="opportunityCount">0</strong>
+            <span>Land Bank opportunities</span>
+          </div>
+
+          <div class="stat">
+            <strong id="mappedCount">0</strong>
+            <span>mapped opportunities</span>
+          </div>
+        </div>
+
+        <div id="searchResults"></div>
+      </div>
+
+      <div class="section">
+
+        <h3>MAP LAYERS</h3>
+
+        <div class="layer-row">
+          <div class="layer-info">
+            <strong>Land Bank Opportunities</strong>
+            <span>Available parcels from supplied CSV</span>
+          </div>
+
+          <label class="switch">
+            <input id="landBankToggle" type="checkbox" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="layer-row">
+          <div class="layer-info">
+            <strong>Updated Zoning PDFs</strong>
+            <span>All zoning districts remain visible</span>
+          </div>
+
+          <label class="switch">
+            <input id="zoningToggle" type="checkbox" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <h3>24 PDF ZONING MAPS</h3>
+
+        <div id="zoningList" class="zoning-list"></div>
+
+      </div>
+
+      <div class="section">
+
+        <div class="screen-box">
+          Sully permanent-site screen: C1 / C2 / I1 = YES
+        </div>
+
+        <p style="font-size:11px;color:#737E91;line-height:1.5;">
+          This screening rule does not hide other zoning districts.
+          The operational map displays all zoning contained in the supplied PDFs.
+        </p>
+
+      </div>
+
+    </aside>
+
+
+    <!-- MAP -->
+
+    <main style="position:relative;min-width:0;">
+
+      <div id="map"></div>
+
+      <div class="legend">
+        <span class="dot"></span>
+        BLUE = Land Bank opportunity
+      </div>
+
+    </main>
+
+
+    <!-- RIGHT PANEL -->
+
+    <aside class="right">
+
+      <div class="tabs">
+        <div class="tab active" data-tab="property">Property</div>
+        <div class="tab" data-tab="reviewed">Reviewed</div>
+        <div class="tab" data-tab="sources">Sources</div>
+      </div>
+
+      <div id="property" class="panel active">
+
+        <div id="propertyEmpty" class="empty">
+          Click a Land Bank opportunity or search an address to inspect a property.
+        </div>
+
+        <div id="propertyDetails" style="display:none;">
+
+          <div id="propertyAddress" class="property-title"></div>
+          <div id="propertyParcel" class="parcel"></div>
+
+          <div id="qualification" class="qualification unknown">
+            Zoning not yet assigned
+          </div>
+
+          <div class="field">
+            <label>Zoning</label>
+            <input id="propertyZoning" placeholder="PDF-derived zoning">
+          </div>
+
+          <div class="field">
+            <label>Decision</label>
+            <select id="decision">
+              <option value="">Not reviewed</option>
+              <option>Pursue</option>
+              <option>Hold</option>
+              <option>Reject</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Priority</label>
+            <select id="priority">
+              <option value="">Not assigned</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Notes</label>
+            <textarea id="notes"></textarea>
+          </div>
+
+          <button id="saveReview" class="primary">
+            Save Property Review
+          </button>
+
+        </div>
+
+      </div>
+
+      <div id="reviewed" class="panel">
+        <div id="reviewedList" class="empty">
+          No properties reviewed yet.
+        </div>
+      </div>
+
+      <div id="sources" class="panel">
+
+        <div class="source-notice">
+          <strong>AUTHORIZED SOURCES</strong><br><br>
+
+          Zoning:<br>
+          24 Birmingham zoning PDFs supplied by Sully.<br><br>
+
+          Land Bank inventory:<br>
+          Sully-provided CSV containing 1,430 Land Bank opportunities.<br><br>
+
+          No Birmingham online zoning GIS.<br>
+          No Jefferson County parcel server.
+        </div>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+const ZONING_MAPS = [
+  "Airport Hills",
+  "Brownville",
+  "Cahaba",
+  "Crestline",
+  "Crestwood",
+  "East Birmingham",
+  "East Lake",
+  "East Pinson Valley",
+  "Ensley",
+  "Five Points West",
+  "Grasselli",
+  "Huffman A",
+  "Huffman B",
+  "North Birmingham",
+  "Northside",
+  "Pratt",
+  "Red Mountain",
+  "Roebuck",
+  "Smithfield",
+  "Southside",
+  "Southwest",
+  "Titusville",
+  "West End",
+  "Woodlawn"
+];
+
+const QUALIFYING_ZONES = ["C1", "C2", "I1"];
+
+let opportunities = [];
+let coordinates = [];
+let selectedProperty = null;
+
+const markers = L.layerGroup();
+const zoningLayers = L.layerGroup();
+
+const map = L.map("map", {
+  center: [33.5186, -86.8104],
+  zoom: 12,
+  zoomControl: true
+});
+
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom: 20,
+    attribution: "&copy; OpenStreetMap contributors"
+  }
+).addTo(map);
+
+markers.addTo(map);
+zoningLayers.addTo(map);
+
+
+/* --------------------------------
+   ZONING MAP LIST
+-------------------------------- */
+
+function buildZoningList() {
+
+  const list = document.getElementById("zoningList");
+
+  list.innerHTML = "";
+
+  ZONING_MAPS.forEach(name => {
+
+    const row = document.createElement("div");
+    row.className = "zone-item";
+
+    row.innerHTML = `
+      <span>${name}</span>
+
+      <label class="switch">
+        <input
+          type="checkbox"
+          checked
+          data-zone="${name}"
+        >
+        <span class="slider"></span>
+      </label>
+    `;
+
+    list.appendChild(row);
+
+  });
+
+}
+
+buildZoningList();
+
+
+/* --------------------------------
+   LOAD LAND BANK INVENTORY
+-------------------------------- */
+
+async function loadLandBankInventory() {
+
+  try {
+
+    const response = await fetch(
+      "./data/land-bank-opportunities.csv"
+    );
+
+    if (!response.ok) {
+      throw new Error("Land Bank CSV not found.");
+    }
+
+    const text = await response.text();
+
+    opportunities = parseCSV(text);
+
+    document.getElementById("opportunityCount").textContent =
+      opportunities.length.toLocaleString();
+
+    renderSearchResults(opportunities.slice(0, 30));
+
+  } catch (error) {
+
+    console.error(error);
+
+    document.getElementById("searchResults").innerHTML = `
+      <div class="empty" style="padding-top:12px;">
+        Land Bank inventory has not been added to the repository yet.
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* --------------------------------
+   LOAD OPTIONAL COORDINATES
+-------------------------------- */
+
+async function loadCoordinates() {
+
+  try {
+
+    const response = await fetch(
+      "./data/land-bank-coordinates.csv"
+    );
+
+    if (!response.ok) return;
+
+    const text = await response.text();
+
+    coordinates = parseCSV(text);
+
+    plotLandBankProperties();
+
+  } catch (error) {
+
+    console.log(
+      "No coordinate dataset supplied."
+    );
+
+  }
+
+}
+
+
+/* --------------------------------
+   CSV PARSER
+-------------------------------- */
+
+function parseCSV(text) {
+
+  const lines = text
+    .split(/\r?\n/)
+    .filter(line => line.trim());
+
+  if (!lines.length) return [];
+
+  const headers = splitCSVLine(lines[0]);
+
+  return lines.slice(1).map(line => {
+
+    const values = splitCSVLine(line);
+
+    const row = {};
+
+    headers.forEach((header, index) => {
+      row[header.trim()] =
+        (values[index] || "").trim();
+    });
+
+    return row;
+
+  });
+
+}
+
+
+function splitCSVLine(line) {
+
+  const result = [];
+  let current = "";
+  let quoted = false;
+
+  for (let i = 0; i < line.length; i++) {
+
+    const char = line[i];
+
+    if (char === '"') {
+
+      if (
+        quoted &&
+        line[i + 1] === '"'
+      ) {
+
+        current += '"';
+        i++;
+
+      } else {
+
+        quoted = !quoted;
+
+      }
+
+    } else if (
+      char === "," &&
+      !quoted
+    ) {
+
+      result.push(current);
+      current = "";
+
+    } else {
+
+      current += char;
+
+    }
+
+  }
+
+  result.push(current);
+
+  return result;
+
+}
+
+
+/* --------------------------------
+   NORMALIZE PROPERTY DATA
+-------------------------------- */
+
+function parcelID(row) {
+
+  return (
+    row["Parcel ID"] ||
+    row["ParcelID"] ||
+    row["parcel_id"] ||
+    ""
+  )
+    .replace(/^="?/, "")
+    .replace(/"?$/, "");
+
+}
+
+
+function address(row) {
+
+  return (
+    row["Address"] ||
+    row["address"] ||
+    ""
+  );
+
+}
+
+
+/* --------------------------------
+   SEARCH
+-------------------------------- */
+
+const searchInput =
+  document.getElementById("search");
+
+searchInput.addEventListener(
+  "input",
+  event => {
+
+    const query =
+      event.target.value
+        .trim()
+        .toLowerCase();
+
+    if (!query) {
+
+      renderSearchResults(
+        opportunities.slice(0, 30)
+      );
+
+      return;
+
+    }
+
+    const results =
+      opportunities.filter(row => {
+
+        return (
+          address(row)
+            .toLowerCase()
+            .includes(query) ||
+
+          parcelID(row)
+            .toLowerCase()
+            .includes(query)
+        );
+
+      });
+
+    renderSearchResults(
+      results.slice(0, 100)
+    );
+
+  }
+);
+
+
+function renderSearchResults(rows) {
+
+  const container =
+    document.getElementById(
+      "searchResults"
+    );
+
+  container.innerHTML = "";
+
+  rows.forEach(row => {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "result";
+
+    item.innerHTML = `
+      <strong>${address(row)}</strong>
+      <span>${parcelID(row)}</span>
+    `;
+
+    item.addEventListener(
+      "click",
+      () => selectProperty(row)
+    );
+
+    container.appendChild(item);
+
+  });
+
+}
+
+
+/* --------------------------------
+   LAND BANK MAPPING
+-------------------------------- */
+
+function plotLandBankProperties() {
+
+  markers.clearLayers();
+
+  let mapped = 0;
+
+  coordinates.forEach(point => {
+
+    const id =
+      parcelID(point);
+
+    const lat =
+      Number(
+        point.latitude ||
+        point.Latitude ||
+        point.lat
+      );
+
+    const lng =
+      Number(
+        point.longitude ||
+        point.Longitude ||
+        point.lng ||
+        point.lon
+      );
+
+    if (
+      !id ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng)
+    ) {
+      return;
+    }
+
+    const property =
+      opportunities.find(
+        row => parcelID(row) === id
+      );
+
+    if (!property) return;
+
+    const marker =
+      L.circleMarker(
+        [lat, lng],
+        {
+          radius: 6,
+          color: "#FFFFFF",
+          weight: 2,
+          fillColor: "#2F6BFF",
+          fillOpacity: 1
+        }
+      );
+
+    marker.on(
+      "click",
+      () => selectProperty(property)
+    );
+
+    marker.bindTooltip(
+      address(property),
+      {
+        direction: "top"
+      }
+    );
+
+    marker.addTo(markers);
+
+    mapped++;
+
+  });
+
+  document.getElementById(
+    "mappedCount"
+  ).textContent =
+    mapped.toLocaleString();
+
+}
+
+
+/* --------------------------------
+   PROPERTY DETAILS
+-------------------------------- */
+
+function selectProperty(property) {
+
+  selectedProperty = property;
+
+  document.getElementById(
+    "propertyEmpty"
+  ).style.display = "none";
+
+  document.getElementById(
+    "propertyDetails"
+  ).style.display = "block";
+
+  document.getElementById(
+    "propertyAddress"
+  ).textContent =
+    address(property);
+
+  document.getElementById(
+    "propertyParcel"
+  ).textContent =
+    `Parcel ID: ${parcelID(property)}`;
+
+  loadSavedReview();
+
+  showTab("property");
+
+}
+
+
+/* --------------------------------
+   QUALIFICATION
+-------------------------------- */
+
+const zoningInput =
+  document.getElementById(
+    "propertyZoning"
+  );
+
+zoningInput.addEventListener(
+  "input",
+  updateQualification
+);
+
+
+function normalizeZone(value) {
+
+  return String(value || "")
+    .toUpperCase()
+    .replace(/[-\s]/g, "");
+
+}
+
+
+function updateQualification() {
+
+  const box =
+    document.getElementById(
+      "qualification"
+    );
+
+  const zone =
+    normalizeZone(
+      zoningInput.value
+    );
+
+  box.className =
+    "qualification";
+
+  if (!zone) {
+
+    box.classList.add(
+      "unknown"
+    );
+
+    box.textContent =
+      "Zoning not yet assigned";
+
+    return;
+
+  }
+
+  if (
+    QUALIFYING_ZONES.includes(zone)
+  ) {
+
+    box.classList.add("yes");
+
+    box.textContent =
+      `${zone} • SULLY SITE SCREEN: YES ✓`;
+
+  } else {
+
+    box.classList.add("no");
+
+    box.textContent =
+      `${zone} • SULLY SITE SCREEN: NO`;
+
+  }
+
+}
+
+
+/* --------------------------------
+   PROPERTY REVIEW STORAGE
+-------------------------------- */
+
+function reviewKey() {
+
+  return (
+    "sully-review-" +
+    parcelID(selectedProperty)
+  );
+
+}
+
+
+document.getElementById(
+  "saveReview"
+).addEventListener(
+  "click",
+  () => {
+
+    if (!selectedProperty) return;
+
+    const review = {
+
+      parcelID:
+        parcelID(selectedProperty),
+
+      address:
+        address(selectedProperty),
+
+      zoning:
+        zoningInput.value.trim(),
+
+      decision:
+        document.getElementById(
+          "decision"
+        ).value,
+
+      priority:
+        document.getElementById(
+          "priority"
+        ).value,
+
+      notes:
+        document.getElementById(
+          "notes"
+        ).value,
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+    localStorage.setItem(
+      reviewKey(),
+      JSON.stringify(review)
+    );
+
+    renderReviewed();
+
+  }
+);
+
+
+function loadSavedReview() {
+
+  const raw =
+    localStorage.getItem(
+      reviewKey()
+    );
+
+  const review =
+    raw ? JSON.parse(raw) : {};
+
+  zoningInput.value =
+    review.zoning || "";
+
+  document.getElementById(
+    "decision"
+  ).value =
+    review.decision || "";
+
+  document.getElementById(
+    "priority"
+  ).value =
+    review.priority || "";
+
+  document.getElementById(
+    "notes"
+  ).value =
+    review.notes || "";
+
+  updateQualification();
+
+}
+
+
+function renderReviewed() {
+
+  const reviews = [];
+
+  for (
+    let i = 0;
+    i < localStorage.length;
+    i++
+  ) {
+
+    const key =
+      localStorage.key(i);
+
+    if (
+      !key.startsWith(
+        "sully-review-"
+      )
+    ) {
+      continue;
+    }
+
+    try {
+
+      reviews.push(
+        JSON.parse(
+          localStorage.getItem(key)
+        )
+      );
+
+    } catch {}
+
+  }
+
+  const container =
+    document.getElementById(
+      "reviewedList"
+    );
+
+  if (!reviews.length) {
+
+    container.innerHTML =
+      "No properties reviewed yet.";
+
+    return;
+
+  }
+
+  container.innerHTML = "";
+
+  reviews.forEach(review => {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "result";
+
+    item.innerHTML = `
+      <strong>${review.address}</strong>
+      <span>
+        ${review.zoning || "No zoning"}
+        •
+        ${review.decision || "Not reviewed"}
+        •
+        ${review.priority || "No priority"}
+      </span>
+    `;
+
+    item.addEventListener(
+      "click",
+      () => {
+
+        const property =
+          opportunities.find(
+            row =>
+              parcelID(row) ===
+              review.parcelID
+          );
+
+        if (property) {
+          selectProperty(property);
+        }
+
+      }
+    );
+
+    container.appendChild(item);
+
+  });
+
+}
+
+
+/* --------------------------------
+   LAYER TOGGLES
+-------------------------------- */
+
+document.getElementById(
+  "landBankToggle"
+).addEventListener(
+  "change",
+  event => {
+
+    if (event.target.checked) {
+
+      markers.addTo(map);
+
+    } else {
+
+      map.removeLayer(markers);
+
+    }
+
+  }
+);
+
+
+document.getElementById(
+  "zoningToggle"
+).addEventListener(
+  "change",
+  event => {
+
+    if (event.target.checked) {
+
+      zoningLayers.addTo(map);
+
+    } else {
+
+      map.removeLayer(zoningLayers);
+
+    }
+
+  }
+);
+
+
+/* --------------------------------
+   TABS
+-------------------------------- */
+
+document.querySelectorAll(
+  ".tab"
+).forEach(tab => {
+
+  tab.addEventListener(
+    "click",
+    () => showTab(tab.dataset.tab)
+  );
+
+});
+
+
+function showTab(name) {
+
+  document.querySelectorAll(
+    ".tab"
+  ).forEach(tab => {
+
+    tab.classList.toggle(
+      "active",
+      tab.dataset.tab === name
+    );
+
+  });
+
+  document.querySelectorAll(
+    ".panel"
+  ).forEach(panel => {
+
+    panel.classList.toggle(
+      "active",
+      panel.id === name
+    );
+
+  });
+
+  if (name === "reviewed") {
+    renderReviewed();
+  }
+
+}
+
+
+/* --------------------------------
+   INITIALIZE
+-------------------------------- */
+
+async function initialize() {
+
+  await loadLandBankInventory();
+  await loadCoordinates();
+
+  renderReviewed();
+
+}
+
+initialize();
+
+</script>
+
+</body>
+</html>
