@@ -1,0 +1,290 @@
+[
+  {
+    "slug": "airport-hills",
+    "name": "Airport Hills",
+    "file": "zoning/airport-hills.webp",
+    "sourcePdf": "Airport Hills Presentation Map 34x44 SB 6 20250716.pdf",
+    "bounds": {
+      "south": 33.57525,
+      "west": -86.75644,
+      "north": 33.61181,
+      "east": -86.70614
+    }
+  },
+  {
+    "slug": "crestline",
+    "name": "Crestline",
+    "file": "zoning/crestline.webp",
+    "sourcePdf": "Crestline Presentation Map 44x34 20260604_0.pdf",
+    "bounds": {
+      "south": 33.49825,
+      "west": -86.75951,
+      "north": 33.54414,
+      "east": -86.69677
+    }
+  },
+  {
+    "slug": "crestwood",
+    "name": "Crestwood",
+    "file": "zoning/crestwood.webp",
+    "sourcePdf": "Crestwood Presentation Map 44x34 20260601_0.pdf",
+    "bounds": {
+      "south": 33.50754,
+      "west": -86.76369,
+      "north": 33.544,
+      "east": -86.71467
+    }
+  },
+  {
+    "slug": "east-birmingham",
+    "name": "East Birmingham",
+    "file": "zoning/east-birmingham.webp",
+    "sourcePdf": "East Birmingham Presentation Map 44x34 SB 10 20250821.pdf",
+    "bounds": {
+      "south": 33.52006,
+      "west": -86.80075,
+      "north": 33.57496,
+      "east": -86.74631
+    }
+  },
+  {
+    "slug": "east-lake",
+    "name": "East Lake",
+    "file": "zoning/east-lake.webp",
+    "sourcePdf": "East Lake Community Rezoning Plan 34x44 SB 7 20250923.pdf",
+    "bounds": {
+      "south": 33.53741,
+      "west": -86.75901,
+      "north": 33.59174,
+      "east": -86.70453
+    }
+  },
+  {
+    "slug": "ensley",
+    "name": "Ensley",
+    "file": "zoning/ensley.webp",
+    "sourcePdf": "Ensley Community Rezoning Plan 34X44 SB 15 2026068.pdf",
+    "bounds": {
+      "south": 33.45672,
+      "west": -86.9899,
+      "north": 33.54759,
+      "east": -86.86673
+    }
+  },
+  {
+    "slug": "five-points-west",
+    "name": "Five Points West",
+    "file": "zoning/five-points-west.webp",
+    "sourcePdf": "FivePointsWest (1).pdf",
+    "bounds": {
+      "south": 33.45725,
+      "west": -86.90851,
+      "north": 33.52511,
+      "east": -86.84616
+    }
+  },
+  {
+    "slug": "pratt",
+    "name": "Pratt",
+    "file": "zoning/pratt.webp",
+    "sourcePdf": "Pratt Presentation Map 44x34 SB 11 20260605(1).pdf",
+    "bounds": {
+      "south": 33.50847,
+      "west": -86.92017,
+      "north": 33.59667,
+      "east": -86.83119
+    }
+  },
+  {
+    "slug": "brownville",
+    "name": "Brownville",
+    "file": "zoning/brownville.webp",
+    "sourcePdf": "ProposedZoningBrownville.pdf",
+    "bounds": {
+      "south": 33.42204,
+      "west": -86.93774,
+      "north": 33.45469,
+      "east": -86.88714
+    }
+  },
+  {
+    "slug": "cahaba",
+    "name": "Cahaba",
+    "file": "zoning/cahaba.webp",
+    "sourcePdf": "ProposedZoningCahaba.pdf",
+    "bounds": {
+      "south": 33.37521,
+      "west": -86.75083,
+      "north": 33.56981,
+      "east": -86.5712
+    }
+  },
+  {
+    "slug": "east-pinson-valley",
+    "name": "East Pinson Valley",
+    "file": "zoning/east-pinson-valley.webp",
+    "sourcePdf": "ProposedZoningEastPinsonValley.pdf",
+    "bounds": {
+      "south": 33.58723,
+      "west": -86.75107,
+      "north": 33.68337,
+      "east": -86.66247
+    }
+  },
+  {
+    "slug": "grasselli",
+    "name": "Grasselli",
+    "file": "zoning/grasselli.webp",
+    "sourcePdf": "ProposedZoningGrasselli(1).pdf",
+    "bounds": {
+      "south": 33.43323,
+      "west": -86.91705,
+      "north": 33.45939,
+      "east": -86.87651
+    }
+  },
+  {
+    "slug": "huffman-a",
+    "name": "Huffman A",
+    "file": "zoning/huffman-a.webp",
+    "sourcePdf": "ProposedZoningHuffmanA.pdf",
+    "bounds": {
+      "south": 33.57228,
+      "west": -86.73992,
+      "north": 33.63332,
+      "east": -86.6449
+    }
+  },
+  {
+    "slug": "huffman-b",
+    "name": "Huffman B",
+    "file": "zoning/huffman-b.webp",
+    "sourcePdf": "ProposedZoningHuffmanB.pdf",
+    "bounds": {
+      "south": 33.52365,
+      "west": -86.68749,
+      "north": 33.61783,
+      "east": -86.60036
+    }
+  },
+  {
+    "slug": "north-birmingham",
+    "name": "North Birmingham",
+    "file": "zoning/north-birmingham.webp",
+    "sourcePdf": "ProposedZoningNorthBirmingham.pdf",
+    "bounds": {
+      "south": 33.51437,
+      "west": -86.89095,
+      "north": 33.63535,
+      "east": -86.77966
+    }
+  },
+  {
+    "slug": "roebuck",
+    "name": "Roebuck",
+    "file": "zoning/roebuck.webp",
+    "sourcePdf": "ProposedZoningRoebuck.pdf",
+    "bounds": {
+      "south": 33.53532,
+      "west": -86.73399,
+      "north": 33.61306,
+      "east": -86.66216
+    }
+  },
+  {
+    "slug": "southwest",
+    "name": "Southwest",
+    "file": "zoning/southwest.webp",
+    "sourcePdf": "ProposedZoningSouthwest.pdf",
+    "bounds": {
+      "south": 33.36803,
+      "west": -86.93632,
+      "north": 33.49387,
+      "east": -86.82034
+    }
+  },
+  {
+    "slug": "titusville",
+    "name": "Titusville",
+    "file": "zoning/titusville.webp",
+    "sourcePdf": "ProposedZoningTitusville (1).pdf",
+    "bounds": {
+      "south": 33.47213,
+      "west": -86.84972,
+      "north": 33.50916,
+      "east": -86.81569
+    }
+  },
+  {
+    "slug": "west-end",
+    "name": "West End",
+    "file": "zoning/west-end.webp",
+    "sourcePdf": "ProposedZoningWestEnd20191122.pdf",
+    "bounds": {
+      "south": 33.4548,
+      "west": -86.89067,
+      "north": 33.51961,
+      "east": -86.83112
+    }
+  },
+  {
+    "slug": "red-mountain",
+    "name": "Red Mountain",
+    "file": "zoning/red-mountain.webp",
+    "sourcePdf": "Red Mtn Community Plan 34x44 SB 21 20260909 (1).pdf",
+    "bounds": {
+      "south": 33.48013,
+      "west": -86.81739,
+      "north": 33.52829,
+      "east": -86.75078
+    }
+  },
+  {
+    "slug": "smithfield",
+    "name": "Smithfield",
+    "file": "zoning/smithfield.webp",
+    "sourcePdf": "Smithfield (1).pdf",
+    "bounds": {
+      "south": 33.49558,
+      "west": -86.85229,
+      "north": 33.53494,
+      "east": -86.81612
+    }
+  },
+  {
+    "slug": "southside",
+    "name": "Southside",
+    "file": "zoning/southside.webp",
+    "sourcePdf": "Southside Community Plan Presentation Map 44X34 SB 29 01222026 (1).pdf",
+    "bounds": {
+      "south": 33.46093,
+      "west": -86.85036,
+      "north": 33.52488,
+      "east": -86.76498
+    }
+  },
+  {
+    "slug": "woodlawn",
+    "name": "Woodlawn",
+    "file": "zoning/woodlawn.webp",
+    "sourcePdf": "Woodlawn Presentation Map 34x44 SB 7 20250716(1).pdf",
+    "bounds": {
+      "south": 33.51572,
+      "west": -86.77484,
+      "north": 33.58112,
+      "east": -86.70949
+    }
+  },
+  {
+    "slug": "northside",
+    "name": "Northside",
+    "file": "zoning/northside.webp",
+    "sourcePdf": "Northside Community Plan 44x34 SB 20 02052026 (6).pdf",
+    "bounds": {
+      "south": 33.50467,
+      "west": -86.83405,
+      "north": 33.55064,
+      "east": -86.77106
+    }
+  }
+]
