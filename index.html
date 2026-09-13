@@ -1,1491 +1,2350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Sully Site Intelligence</title>
+<title>Sully Site Intelligence</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  >
+<style>
+:root {
+    --blue: #2F6BFF;
+    --light-blue: #C8E6FE;
+    --navy: #003087;
+    --midnight: #001F54;
+    --black: #111827;
+    --gray: #6B7280;
+    --light-gray: #F3F4F6;
+    --border: #D8DEE8;
+    --white: #FFFFFF;
+    --green: #16794B;
+    --green-bg: #E8F7EF;
+    --red: #B42318;
+    --red-bg: #FDECEC;
+    --yellow: #946200;
+    --yellow-bg: #FFF7DB;
+}
 
-  <style>
-    :root {
-      --blue: #2F6BFF;
-      --light-blue: #C8E6FE;
-      --navy: #003087;
-      --midnight: #001F54;
-      --gray: #B4B4B4;
-      --border: #E3E8F0;
-      --background: #F7F9FC;
-      --green: #16855B;
-      --red: #C63D3D;
-      --orange: #B86E00;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #F6F8FB;
+    color: var(--black);
+    overflow: hidden;
+}
 
-    html,
-    body {
-      margin: 0;
-      height: 100%;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #172033;
-      background: white;
-    }
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
 
-    body {
-      overflow: hidden;
-    }
+button {
+    cursor: pointer;
+}
 
+/* HEADER */
+
+header {
+    height: 72px;
+    background: var(--midnight);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    border-bottom: 4px solid var(--blue);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.brand-mark {
+    width: 40px;
+    height: 40px;
+    background: var(--blue);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.brand h1 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.brand p {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: #C8D5F0;
+}
+
+.header-rule {
+    text-align: right;
+    font-size: 12px;
+    color: #DCE6FF;
+}
+
+.header-rule strong {
+    display: block;
+    color: white;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+/* APP LAYOUT */
+
+.app {
+    height: calc(100vh - 72px);
+    display: grid;
+    grid-template-columns: 330px minmax(0, 1fr) 330px;
+}
+
+.sidebar {
+    background: white;
+    overflow-y: auto;
+}
+
+.sidebar.left {
+    border-right: 1px solid var(--border);
+}
+
+.sidebar.right {
+    border-left: 1px solid var(--border);
+}
+
+.section {
+    padding: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 10px;
+}
+
+/* SEARCH */
+
+.search {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #BFC8D6;
+    border-radius: 8px;
+    padding: 0 12px;
+    outline: none;
+}
+
+.search:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(47,107,255,.12);
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.stat {
+    background: #F7F9FC;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.stat strong {
+    display: block;
+    color: var(--midnight);
+    font-size: 20px;
+}
+
+.stat span {
+    display: block;
+    color: var(--gray);
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+/* LAYER CONTROLS */
+
+.control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+    font-size: 13px;
+}
+
+.control-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--blue);
+}
+
+.opacity-control {
+    width: 100%;
+    accent-color: var(--blue);
+}
+
+/* COMMUNITY MAP LIST */
+
+.map-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.map-item {
+    border: 1px solid var(--border);
+    background: #FAFBFD;
+    border-radius: 7px;
+    padding: 9px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.map-item button {
+    border: 0;
+    background: transparent;
+    color: var(--blue);
+    padding: 2px 3px;
+    font-weight: 700;
+}
+
+/* LAND BANK RESULTS */
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--gray);
+    margin-bottom: 8px;
+}
+
+.results {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.property-row {
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: .15s ease;
+}
+
+.property-row:hover {
+    border-color: var(--blue);
+    background: #F8FAFF;
+}
+
+.property-row.active {
+    border-color: var(--blue);
+    background: #EFF4FF;
+    box-shadow: inset 3px 0 0 var(--blue);
+}
+
+.property-address {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.property-id {
+    font-size: 10px;
+    color: var(--gray);
+    margin-top: 5px;
+}
+
+.mini-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 9px;
+    padding: 3px 6px;
+    margin-top: 6px;
+    font-weight: 700;
+}
+
+.mini-badge.yes {
+    color: var(--green);
+    background: var(--green-bg);
+}
+
+.mini-badge.no {
+    color: var(--red);
+    background: var(--red-bg);
+}
+
+.mini-badge.pending {
+    color: #606875;
+    background: #EEF1F5;
+}
+
+/* MAP */
+
+.map-area {
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(#EDF1F7 1px, transparent 1px),
+        linear-gradient(90deg, #EDF1F7 1px, transparent 1px),
+        #F9FBFD;
+    background-size: 30px 30px;
+}
+
+#viewport {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    cursor: grab;
+}
+
+#viewport.dragging {
+    cursor: grabbing;
+}
+
+#world {
+    position: absolute;
+    transform-origin: 0 0;
+    width: 1600px;
+    height: 1500px;
+}
+
+.zoning-image {
+    position: absolute;
+    display: block;
+    user-select: none;
+    pointer-events: auto;
+    object-fit: fill;
+    border: 0;
+}
+
+.zoning-image:hover {
+    outline: 3px solid rgba(47,107,255,.65);
+    z-index: 500 !important;
+}
+
+.map-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: rgba(0,31,84,.88);
+    color: white;
+    border: 1px solid rgba(255,255,255,.35);
+    padding: 3px 7px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 800;
+}
+
+.map-toolbar {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2000;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.map-toolbar button {
+    background: white;
+    border: 1px solid #BFC8D6;
+    border-radius: 7px;
+    min-width: 38px;
+    height: 38px;
+    font-weight: 800;
+    color: var(--midnight);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.map-toolbar button.fit-button {
+    padding: 0 12px;
+}
+
+.map-status {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 2000;
+    background: rgba(0,31,84,.93);
+    color: white;
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 11px;
+    max-width: 520px;
+    line-height: 1.35;
+}
+
+.map-key {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 2000;
+    width: 235px;
+    background: rgba(255,255,255,.96);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    font-size: 11px;
+}
+
+.map-key strong {
+    display: block;
+    color: var(--midnight);
+    margin-bottom: 6px;
+}
+
+.map-key p {
+    margin: 4px 0;
+    color: var(--gray);
+    line-height: 1.35;
+}
+
+/* RIGHT PANEL */
+
+.tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+.tab {
+    border: 0;
+    background: white;
+    padding: 14px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray);
+    border-bottom: 3px solid transparent;
+}
+
+.tab.active {
+    color: var(--blue);
+    border-bottom-color: var(--blue);
+}
+
+.panel {
+    display: none;
+    padding: 18px;
+}
+
+.panel.active {
+    display: block;
+}
+
+.empty {
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--gray);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.detail-address {
+    color: var(--midnight);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.detail-id {
+    color: var(--gray);
+    font-size: 11px;
+    margin-top: 5px;
+    word-break: break-all;
+}
+
+.status-card {
+    border-radius: 8px;
+    padding: 12px;
+    margin: 14px 0 18px;
+}
+
+.status-card.yes {
+    background: var(--green-bg);
+    border: 1px solid #B7E3CC;
+    color: var(--green);
+}
+
+.status-card.no {
+    background: var(--red-bg);
+    border: 1px solid #F4C4C0;
+    color: var(--red);
+}
+
+.status-card.pending {
+    background: #F1F3F6;
+    border: 1px solid #D8DEE8;
+    color: #59616D;
+}
+
+.status-card strong {
+    display: block;
+    font-size: 15px;
+}
+
+.status-card span {
+    display: block;
+    font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.field {
+    margin-bottom: 14px;
+}
+
+.field label {
+    display: block;
+    color: #4C5563;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.field select,
+.field input,
+.field textarea {
+    width: 100%;
+    border: 1px solid #BFC8D6;
+    border-radius: 7px;
+    padding: 9px 10px;
+    background: white;
+    outline: none;
+}
+
+.field textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.field select:focus,
+.field input:focus,
+.field textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(47,107,255,.1);
+}
+
+.help {
+    color: var(--gray);
+    font-size: 10px;
+    line-height: 1.4;
+    margin-top: 5px;
+}
+
+.save-note {
+    font-size: 10px;
+    color: var(--green);
+    min-height: 14px;
+}
+
+/* REVIEWED */
+
+.review-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.review-card:hover {
+    border-color: var(--blue);
+}
+
+.review-card strong {
+    display: block;
+    font-size: 12px;
+}
+
+.review-card span {
+    display: block;
+    color: var(--gray);
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.primary {
+    width: 100%;
+    border: 0;
+    background: var(--blue);
+    color: white;
+    border-radius: 7px;
+    padding: 11px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+/* SOURCES */
+
+.source-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.source-card strong {
+    display: block;
+    color: var(--midnight);
+    font-size: 12px;
+}
+
+.source-card span {
+    display: block;
+    color: var(--gray);
+    font-size: 10px;
+    line-height: 1.4;
+    margin-top: 5px;
+}
+
+.source-warning {
+    background: #EEF4FF;
+    border: 1px solid #C9D8FF;
+    color: var(--midnight);
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 11px;
+    line-height: 1.45;
+    margin-bottom: 14px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
     .app {
-      height: 100vh;
-      display: grid;
-      grid-template-rows: 70px 1fr;
+        grid-template-columns: 280px minmax(0,1fr);
     }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 22px;
-      background: white;
-      border-bottom: 1px solid var(--border);
-      z-index: 1000;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--blue);
-      color: white;
-      display: grid;
-      place-items: center;
-      font-size: 21px;
-      font-weight: 800;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 18px;
-      color: var(--midnight);
-    }
-
-    .brand p {
-      margin: 3px 0 0;
-      font-size: 11px;
-      color: #758096;
-    }
-
-    .rule {
-      padding: 8px 13px;
-      border-radius: 20px;
-      background: #EAF8F1;
-      color: #08734C;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .workspace {
-      display: grid;
-      grid-template-columns: 330px 1fr 350px;
-      min-height: 0;
-    }
-
-    aside {
-      background: white;
-      overflow-y: auto;
-    }
-
-    .left {
-      border-right: 1px solid var(--border);
-    }
-
-    .right {
-      border-left: 1px solid var(--border);
-    }
-
-    .section {
-      padding: 17px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .source-box {
-      background: #EDF3FF;
-      border-radius: 9px;
-      padding: 12px;
-      font-size: 11px;
-      line-height: 1.5;
-      color: #43516A;
-    }
-
-    .source-box strong {
-      color: var(--midnight);
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #D4DCE8;
-      border-radius: 8px;
-      font-family: inherit;
-      outline: none;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--blue);
-    }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .stat {
-      border: 1px solid var(--border);
-      background: #FAFBFD;
-      padding: 11px;
-      border-radius: 8px;
-    }
-
-    .stat strong {
-      display: block;
-      color: var(--midnight);
-      font-size: 21px;
-    }
-
-    .stat span {
-      color: #758096;
-      font-size: 10px;
-    }
-
-    h3 {
-      margin: 0 0 11px;
-      color: var(--midnight);
-      font-size: 12px;
-    }
-
-    #searchResults {
-      max-height: 270px;
-      overflow-y: auto;
-      margin-top: 10px;
-    }
-
-    .result {
-      padding: 9px 5px;
-      border-bottom: 1px solid #EEF1F5;
-      cursor: pointer;
-      font-size: 11px;
-    }
-
-    .result:hover {
-      background: #F4F7FF;
-    }
-
-    .result strong {
-      display: block;
-      color: var(--midnight);
-      margin-bottom: 3px;
-    }
-
-    .result span {
-      color: #788398;
-    }
-
-    .status {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 7px;
-      font-size: 11px;
-      line-height: 1.4;
-    }
-
-    .status.loading {
-      background: #FFF5E5;
-      color: #8A5800;
-    }
-
-    .status.success {
-      background: #EAF8F1;
-      color: #08734C;
-    }
-
-    .status.error {
-      background: #FCECEC;
-      color: #A42C2C;
-    }
-
-    .screen {
-      padding: 10px;
-      border-radius: 8px;
-      background: #EAF8F1;
-      color: #08734C;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-      background: #E8EDF5;
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .tab {
-      padding: 15px 4px;
-      text-align: center;
-      color: #758096;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-    }
-
-    .tab.active {
-      color: var(--blue);
-      border-bottom-color: var(--blue);
-    }
-
-    .panel {
-      display: none;
-      padding: 17px;
-    }
-
-    .panel.active {
-      display: block;
-    }
-
-    .empty {
-      color: #758096;
-      font-size: 11px;
-      line-height: 1.6;
-    }
-
-    .property-title {
-      color: var(--midnight);
-      font-size: 17px;
-      font-weight: 800;
-      margin-bottom: 5px;
-    }
-
-    .parcel {
-      color: #758096;
-      font-size: 10px;
-      margin-bottom: 15px;
-    }
-
-    .field {
-      margin-bottom: 13px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 5px;
-      color: #6E788B;
-      font-size: 9px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-
-    .qualification {
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 14px;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .yes {
-      background: #EAF8F1;
-      color: var(--green);
-    }
-
-    .no {
-      background: #FCECEC;
-      color: var(--red);
-    }
-
-    .unknown {
-      background: #FFF5E5;
-      color: var(--orange);
-    }
-
-    button {
-      width: 100%;
-      border: 0;
-      padding: 11px;
-      border-radius: 8px;
-      background: var(--blue);
-      color: white;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .map-message {
-      position: absolute;
-      left: 50%;
-      bottom: 20px;
-      transform: translateX(-50%);
-      z-index: 500;
-      width: min(540px, 80%);
-      background: rgba(255,255,255,.96);
-      padding: 11px 14px;
-      border-radius: 9px;
-      box-shadow: 0 2px 14px rgba(0,0,0,.15);
-      font-size: 10px;
-      line-height: 1.5;
-      color: #566176;
-      text-align: center;
-    }
-
-    @media(max-width: 1000px) {
-      .workspace {
-        grid-template-columns: 290px 1fr;
-      }
-
-      .right {
+    .sidebar.right {
         display: none;
-      }
     }
-  </style>
+}
+</style>
 </head>
 
 <body>
 
+<header>
+    <div class="brand">
+        <div class="brand-mark">S</div>
+
+        <div>
+            <h1>Sully Site Intelligence</h1>
+            <p>Birmingham Land Bank acquisition screening</p>
+        </div>
+    </div>
+
+    <div class="header-rule">
+        <strong>Permanent Site Screen</strong>
+        C-1 · C-2 · I-1 = YES &nbsp; | &nbsp; Everything else = NO
+    </div>
+</header>
+
 <div class="app">
 
-  <header>
+    <!-- LEFT SIDEBAR -->
 
-    <div class="brand">
-      <div class="logo">S</div>
+    <aside class="sidebar left">
 
-      <div>
-        <h1>Sully Site Intelligence</h1>
-        <p>Birmingham land acquisition and zoning intelligence</p>
-      </div>
-    </div>
+        <div class="section">
+            <div class="section-title">Land Bank Database</div>
 
-    <div class="rule">
-      C1 • C2 • I1 = YES
-    </div>
+            <input
+                id="searchInput"
+                class="search"
+                type="text"
+                placeholder="Search address or parcel ID"
+            >
 
-  </header>
+            <div class="stats">
+                <div class="stat">
+                    <strong id="totalCount">0</strong>
+                    <span>opportunities</span>
+                </div>
 
-
-  <div class="workspace">
-
-    <aside class="left">
-
-      <div class="section">
-
-        <div class="source-box">
-          <strong>AUTHORIZED DATA ONLY</strong><br>
-          Land Bank inventory comes from Sully's supplied Tolemi export.
-          Zoning will come only from Sully's 24 supplied Birmingham zoning PDFs.
+                <div class="stat">
+                    <strong id="reviewedCount">0</strong>
+                    <span>reviewed</span>
+                </div>
+            </div>
         </div>
 
-      </div>
+        <div class="section">
+            <div class="section-title">Map Layers</div>
 
+            <div class="control-row">
+                <span>PDF zoning maps</span>
+                <input id="zoningToggle" type="checkbox" checked>
+            </div>
 
-      <div class="section">
+            <div class="control-row">
+                <span>Community labels</span>
+                <input id="labelToggle" type="checkbox" checked>
+            </div>
 
-        <input
-          id="search"
-          type="search"
-          placeholder="Search address or Parcel ID"
-        >
-
-        <div id="dataStatus" class="status loading">
-          Loading Land Bank database...
+            <div class="control-row" style="display:block">
+                <span style="display:block;margin-bottom:7px;">Zoning opacity</span>
+                <input
+                    id="opacitySlider"
+                    class="opacity-control"
+                    type="range"
+                    min="20"
+                    max="100"
+                    value="88"
+                >
+            </div>
         </div>
 
-        <div class="stats">
-
-          <div class="stat">
-            <strong id="opportunityCount">0</strong>
-            <span>Land Bank opportunities</span>
-          </div>
-
-          <div class="stat">
-            <strong id="mappedCount">0</strong>
-            <span>mapped opportunities</span>
-          </div>
-
+        <div class="section">
+            <div class="section-title">24 Zoning Maps</div>
+            <div id="mapList" class="map-list"></div>
         </div>
 
-        <div id="searchResults"></div>
+        <div class="section">
+            <div class="section-title">Land Bank Opportunities</div>
 
-      </div>
+            <div class="results-header">
+                <span id="resultCount">0 results</span>
+                <span>select a property</span>
+            </div>
 
-
-      <div class="section">
-
-        <h3>SULLY SITE SCREEN</h3>
-
-        <div class="screen">
-          C1 / C2 / I1 = YES ✓
+            <div id="propertyResults" class="results"></div>
         </div>
-
-        <p style="font-size:10px;color:#758096;line-height:1.5;">
-          All other zoning districts remain visible in the Site Intelligence
-          system but do not pass Sully's permanent-site screen.
-        </p>
-
-      </div>
-
-
-      <div class="section">
-
-        <h3>ZONING MAP STATUS</h3>
-
-        <div class="status loading">
-          24 Birmingham zoning map layers are the next data layer to be added.
-        </div>
-
-        <p style="font-size:10px;color:#758096;line-height:1.5;">
-          No Birmingham online zoning GIS or Jefferson County parcel server
-          is used by this application.
-        </p>
-
-      </div>
 
     </aside>
 
+    <!-- MAP -->
 
-    <main style="position:relative;min-width:0;">
+    <main class="map-area">
 
-      <div id="map"></div>
+        <div id="viewport">
+            <div id="world">
+                <div id="zoningLayer"></div>
+                <div id="labelLayer"></div>
+            </div>
+        </div>
 
-      <div class="map-message">
-        Land Bank properties are searchable now. Geographic Land Bank markers
-        will be enabled only when Sully supplies coordinates or parcel geometry.
-        The current Tolemi export contains Parcel ID and Address only.
-      </div>
+        <div class="map-toolbar">
+            <button id="zoomIn" title="Zoom in">+</button>
+            <button id="zoomOut" title="Zoom out">−</button>
+            <button id="fitAll" class="fit-button">Fit all zoning</button>
+        </div>
+
+        <div id="mapStatus" class="map-status">
+            Loading Sully zoning intelligence...
+        </div>
+
+        <div class="map-key">
+            <strong>What you are viewing</strong>
+
+            <p>
+                The colored zoning geography comes from the 24 Birmingham
+                zoning PDF maps supplied to Sully.
+            </p>
+
+            <p>
+                Land Bank addresses are loaded from Sully's supplied Tolemi CSV.
+            </p>
+
+            <p>
+                Land Bank markers are not being fabricated. The supplied CSV
+                does not contain coordinates or parcel geometry.
+            </p>
+        </div>
 
     </main>
 
+    <!-- RIGHT SIDEBAR -->
 
-    <aside class="right">
+    <aside class="sidebar right">
 
-      <div class="tabs">
-
-        <div class="tab active" data-tab="property">
-          Property
+        <div class="tabs">
+            <button class="tab active" data-panel="propertyPanel">Property</button>
+            <button class="tab" data-panel="reviewedPanel">Reviewed</button>
+            <button class="tab" data-panel="sourcesPanel">Sources</button>
         </div>
 
-        <div class="tab" data-tab="reviewed">
-          Reviewed
-        </div>
+        <div id="propertyPanel" class="panel active">
 
-        <div class="tab" data-tab="sources">
-          Sources
-        </div>
+            <div id="emptyState" class="empty">
+                Select a Land Bank opportunity from the list to review it for
+                Sully.
+            </div>
 
-      </div>
-
-
-      <div id="property" class="panel active">
-
-        <div id="propertyEmpty" class="empty">
-          Search the Land Bank database and select a property to review it.
-        </div>
-
-
-        <div id="propertyDetails" style="display:none;">
-
-          <div id="propertyAddress" class="property-title"></div>
-
-          <div id="propertyParcel" class="parcel"></div>
-
-          <div
-            id="qualification"
-            class="qualification unknown"
-          >
-            Zoning not yet assigned
-          </div>
-
-
-          <div class="field">
-            <label>Zoning</label>
-            <input
-              id="propertyZoning"
-              placeholder="PDF-derived zoning"
-            >
-          </div>
-
-
-          <div class="field">
-
-            <label>Decision</label>
-
-            <select id="decision">
-              <option value="">Not reviewed</option>
-              <option value="Pursue">Pursue</option>
-              <option value="Hold">Hold</option>
-              <option value="Reject">Reject</option>
-            </select>
-
-          </div>
-
-
-          <div class="field">
-
-            <label>Priority</label>
-
-            <select id="priority">
-              <option value="">Not assigned</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
-
-          </div>
-
-
-          <div class="field">
-
-            <label>Notes</label>
-
-            <textarea id="notes"></textarea>
-
-          </div>
-
-
-          <button id="saveReview">
-            Save Property Review
-          </button>
+            <div id="propertyDetail" style="display:none;"></div>
 
         </div>
 
-      </div>
+        <div id="reviewedPanel" class="panel">
+            <div id="reviewList"></div>
 
-
-      <div id="reviewed" class="panel">
-
-        <div id="reviewedList" class="empty">
-          No properties reviewed yet.
+            <button id="exportReviews" class="primary">
+                Export Reviewed Sites
+            </button>
         </div>
 
-      </div>
+        <div id="sourcesPanel" class="panel">
 
+            <div class="source-warning">
+                <strong>Source rule:</strong><br><br>
+                This tool uses only Sully-provided source files for zoning and
+                Land Bank inventory. It does not use Birmingham's online zoning
+                GIS, Jefferson County parcel data, OpenStreetMap, or an external
+                geocoder.
+            </div>
 
-      <div id="sources" class="panel">
+            <div class="source-card">
+                <strong>Land Bank Inventory</strong>
+                <span>
+                    data/land-bank-opportunities.csv
+                </span>
+            </div>
 
-        <div class="source-box">
+            <div class="source-card">
+                <strong>Zoning Placement Data</strong>
+                <span>
+                    data/zoning-maps.json
+                </span>
+            </div>
 
-          <strong>SULLY DATA SOURCES</strong><br><br>
-
-          <strong>Land Bank:</strong><br>
-          Sully-provided Tolemi export containing 1,430 opportunities.<br><br>
-
-          <strong>Zoning:</strong><br>
-          24 Birmingham zoning PDFs supplied by Sully.<br><br>
-
-          <strong>Excluded:</strong><br>
-          Birmingham online zoning GIS<br>
-          Jefferson County parcel GIS<br>
-          External parcel inventories
+            <div id="sourceMapList"></div>
 
         </div>
-
-      </div>
 
     </aside>
 
-  </div>
-
 </div>
-
-
-<script
-  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
-
 
 <script>
 
-const QUALIFYING_ZONES = ["C1", "C2", "I1"];
-
-let opportunities = [];
-let selectedProperty = null;
-
-
-/* ===============================
-   MAP
-================================ */
-
-const map = L.map("map", {
-  center: [33.5186, -86.8104],
-  zoom: 12
-});
-
-
-L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  {
-    maxZoom: 20,
-    attribution: "&copy; OpenStreetMap contributors"
-  }
-).addTo(map);
-
-
-/* ===============================
-   LOAD LAND BANK CSV
-================================ */
-
-async function loadLandBankInventory() {
-
-  const status =
-    document.getElementById("dataStatus");
-
-  try {
-
-    const response = await fetch(
-      "./data/land-bank-opportunities.csv"
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        "Could not open Land Bank CSV."
-      );
-    }
-
-    const text = await response.text();
-
-    opportunities = parseTolemiCSV(text);
-
-    if (!opportunities.length) {
-      throw new Error(
-        "No Land Bank records were found."
-      );
-    }
-
-    document.getElementById(
-      "opportunityCount"
-    ).textContent =
-      opportunities.length.toLocaleString();
-
-    status.className = "status success";
-
-    status.textContent =
-      opportunities.length.toLocaleString() +
-      " Land Bank opportunities loaded ✓";
-
-    renderSearchResults(
-      opportunities.slice(0, 30)
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-    status.className = "status error";
-
-    status.textContent =
-      "Land Bank database could not be loaded.";
-
-  }
-
-}
-
-
-/* ===============================
-   TOLEMI CSV PARSER
-
-   The supplied export begins with:
-   Filters:
-   blank lines
-   "Parcel ID","Address"
-
-   This finds the real header automatically.
-================================ */
-
-function parseTolemiCSV(text) {
-
-  const allLines =
-    text.split(/\r?\n/);
-
-  const headerIndex =
-    allLines.findIndex(line => {
-
-      const cleaned =
-        line.replace(/^\uFEFF/, "");
-
-      return (
-        cleaned.includes("Parcel ID") &&
-        cleaned.includes("Address")
-      );
-
-    });
-
-
-  if (headerIndex === -1) {
-
-    console.error(
-      "Parcel ID / Address header not found."
-    );
-
-    return [];
-
-  }
-
-
-  const headerLine =
-    allLines[headerIndex]
-      .replace(/^\uFEFF/, "");
-
-
-  const headers =
-    splitCSVLine(headerLine)
-      .map(value =>
-        cleanCSVValue(value)
-      );
-
-
-  const records = [];
-
-
-  for (
-    let i = headerIndex + 1;
-    i < allLines.length;
-    i++
-  ) {
-
-    const line = allLines[i];
-
-    if (!line.trim()) {
-      continue;
-    }
-
-
-    const values =
-      splitCSVLine(line);
-
-
-    const row = {};
-
-
-    headers.forEach(
-      (header, index) => {
-
-        row[header] =
-          cleanCSVValue(
-            values[index] || ""
-          );
-
-      }
-    );
-
-
-    const id =
-      normalizeParcelID(
-        row["Parcel ID"]
-      );
-
-
-    const propertyAddress =
-      (row["Address"] || "").trim();
-
-
-    if (
-      !id ||
-      !propertyAddress
-    ) {
-      continue;
-    }
-
-
-    records.push({
-      "Parcel ID": id,
-      "Address": propertyAddress
-    });
-
-  }
-
-
-  return records;
-
-}
-
-
-/* ===============================
-   CSV LINE PARSER
-================================ */
-
-function splitCSVLine(line) {
-
-  const values = [];
-
-  let value = "";
-  let insideQuotes = false;
-
-
-  for (
-    let i = 0;
-    i < line.length;
-    i++
-  ) {
-
-    const char = line[i];
-
-
-    if (char === '"') {
-
-      if (
-        insideQuotes &&
-        line[i + 1] === '"'
-      ) {
-
-        value += '"';
-        i++;
-
-      } else {
-
-        insideQuotes =
-          !insideQuotes;
-
-      }
-
-    } else if (
-      char === "," &&
-      !insideQuotes
-    ) {
-
-      values.push(value);
-
-      value = "";
-
-    } else {
-
-      value += char;
-
-    }
-
-  }
-
-
-  values.push(value);
-
-  return values;
-
-}
-
-
-/* ===============================
-   CLEAN TOLEMI VALUES
-================================ */
-
-function cleanCSVValue(value) {
-
-  return String(value || "")
-    .trim()
-    .replace(/^\uFEFF/, "")
-    .replace(/^="/, "")
-    .replace(/"$/, "")
-    .replace(/^"/, "")
-    .replace(/"$/, "")
-    .trim();
-
-}
-
-
-function normalizeParcelID(value) {
-
-  return cleanCSVValue(value)
-    .replace(/[^0-9A-Za-z.-]/g, "");
-
-}
-
-
-/* ===============================
-   PROPERTY HELPERS
-================================ */
-
-function parcelID(row) {
-
-  return row["Parcel ID"] || "";
-
-}
-
-
-function propertyAddress(row) {
-
-  return row["Address"] || "";
-
-}
-
-
-/* ===============================
-   SEARCH
-================================ */
-
-document.getElementById(
-  "search"
-).addEventListener(
-  "input",
-  event => {
-
-    const query =
-      event.target.value
-        .trim()
-        .toLowerCase();
-
-
-    if (!query) {
-
-      renderSearchResults(
-        opportunities.slice(0, 30)
-      );
-
-      return;
-
-    }
-
-
-    const results =
-      opportunities.filter(row => {
-
-        return (
-          propertyAddress(row)
-            .toLowerCase()
-            .includes(query)
-          ||
-          parcelID(row)
-            .toLowerCase()
-            .includes(query)
+/* =========================================================
+   SULLY SITE INTELLIGENCE
+   Local source-only architecture
+   ========================================================= */
+
+const CSV_PATH = "./data/land-bank-opportunities.csv";
+const ZONING_PATH = "./data/zoning-maps.json";
+
+const QUALIFYING_ZONES = new Set([
+    "C-1",
+    "C-2",
+    "I-1"
+]);
+
+const ZONING_OPTIONS = [
+    "",
+    "C-1",
+    "C-2",
+    "I-1",
+    "I-2",
+    "I-3",
+    "I-4",
+    "MU-D",
+    "MU-M",
+    "MU-H",
+    "MU-L",
+    "UN",
+    "D-1",
+    "D-2",
+    "D-3",
+    "D-4",
+    "D-5",
+    "D-6",
+    "R-1",
+    "R-2",
+    "R-3",
+    "R-4",
+    "R-5",
+    "R-6",
+    "R-7",
+    "Other"
+];
+
+let landBank = [];
+let zoningMaps = [];
+let selectedParcelId = null;
+
+let reviews = loadReviews();
+
+/* =========================================================
+   WORLD / MAP STATE
+   ========================================================= */
+
+const WORLD_WIDTH = 1600;
+const WORLD_HEIGHT = 1500;
+
+let worldBounds = null;
+
+let mapScale = 1;
+let offsetX = 0;
+let offsetY = 0;
+
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragOriginX = 0;
+let dragOriginY = 0;
+
+const viewport = document.getElementById("viewport");
+const world = document.getElementById("world");
+const zoningLayer = document.getElementById("zoningLayer");
+const labelLayer = document.getElementById("labelLayer");
+
+/* =========================================================
+   STORAGE
+   ========================================================= */
+
+function loadReviews() {
+    try {
+        return JSON.parse(
+            localStorage.getItem("sully-site-intelligence-reviews") || "{}"
         );
-
-      });
-
-
-    renderSearchResults(
-      results.slice(0, 100)
-    );
-
-  }
-);
-
-
-function renderSearchResults(rows) {
-
-  const container =
-    document.getElementById(
-      "searchResults"
-    );
-
-
-  container.innerHTML = "";
-
-
-  if (!rows.length) {
-
-    container.innerHTML = `
-      <div class="empty">
-        No matching Land Bank opportunities.
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  rows.forEach(row => {
-
-    const item =
-      document.createElement("div");
-
-
-    item.className = "result";
-
-
-    item.innerHTML = `
-      <strong>
-        ${escapeHTML(propertyAddress(row))}
-      </strong>
-
-      <span>
-        Parcel ${escapeHTML(parcelID(row))}
-      </span>
-    `;
-
-
-    item.addEventListener(
-      "click",
-      () => selectProperty(row)
-    );
-
-
-    container.appendChild(item);
-
-  });
-
-}
-
-
-/* ===============================
-   PROPERTY REVIEW
-================================ */
-
-function selectProperty(property) {
-
-  selectedProperty = property;
-
-
-  document.getElementById(
-    "propertyEmpty"
-  ).style.display = "none";
-
-
-  document.getElementById(
-    "propertyDetails"
-  ).style.display = "block";
-
-
-  document.getElementById(
-    "propertyAddress"
-  ).textContent =
-    propertyAddress(property);
-
-
-  document.getElementById(
-    "propertyParcel"
-  ).textContent =
-    "Parcel ID: " +
-    parcelID(property);
-
-
-  loadSavedReview();
-
-  showTab("property");
-
-}
-
-
-/* ===============================
-   ZONING SCREEN
-================================ */
-
-document.getElementById(
-  "propertyZoning"
-).addEventListener(
-  "input",
-  updateQualification
-);
-
-
-function normalizeZone(value) {
-
-  return String(value || "")
-    .toUpperCase()
-    .replace(/[-\s]/g, "");
-
-}
-
-
-function updateQualification() {
-
-  const box =
-    document.getElementById(
-      "qualification"
-    );
-
-
-  const zone =
-    normalizeZone(
-      document.getElementById(
-        "propertyZoning"
-      ).value
-    );
-
-
-  box.className =
-    "qualification";
-
-
-  if (!zone) {
-
-    box.classList.add(
-      "unknown"
-    );
-
-    box.textContent =
-      "Zoning not yet assigned";
-
-    return;
-
-  }
-
-
-  if (
-    QUALIFYING_ZONES.includes(zone)
-  ) {
-
-    box.classList.add("yes");
-
-    box.textContent =
-      zone +
-      " • SULLY SITE SCREEN: YES ✓";
-
-  } else {
-
-    box.classList.add("no");
-
-    box.textContent =
-      zone +
-      " • SULLY SITE SCREEN: NO ✕";
-
-  }
-
-}
-
-
-/* ===============================
-   LOCAL REVIEW STORAGE
-================================ */
-
-function reviewKey() {
-
-  return (
-    "sully-review-" +
-    parcelID(selectedProperty)
-  );
-
-}
-
-
-document.getElementById(
-  "saveReview"
-).addEventListener(
-  "click",
-  () => {
-
-    if (!selectedProperty) {
-      return;
+    } catch (error) {
+        return {};
     }
+}
 
-
-    const review = {
-
-      parcelID:
-        parcelID(selectedProperty),
-
-      address:
-        propertyAddress(
-          selectedProperty
-        ),
-
-      zoning:
-        document.getElementById(
-          "propertyZoning"
-        ).value.trim(),
-
-      decision:
-        document.getElementById(
-          "decision"
-        ).value,
-
-      priority:
-        document.getElementById(
-          "priority"
-        ).value,
-
-      notes:
-        document.getElementById(
-          "notes"
-        ).value,
-
-      updatedAt:
-        new Date().toISOString()
-
-    };
-
-
+function saveReviews() {
     localStorage.setItem(
-      reviewKey(),
-      JSON.stringify(review)
+        "sully-site-intelligence-reviews",
+        JSON.stringify(reviews)
     );
 
-
+    refreshReviewedCount();
     renderReviewed();
-
-  }
-);
-
-
-function loadSavedReview() {
-
-  const raw =
-    localStorage.getItem(
-      reviewKey()
-    );
-
-
-  const review =
-    raw
-      ? JSON.parse(raw)
-      : {};
-
-
-  document.getElementById(
-    "propertyZoning"
-  ).value =
-    review.zoning || "";
-
-
-  document.getElementById(
-    "decision"
-  ).value =
-    review.decision || "";
-
-
-  document.getElementById(
-    "priority"
-  ).value =
-    review.priority || "";
-
-
-  document.getElementById(
-    "notes"
-  ).value =
-    review.notes || "";
-
-
-  updateQualification();
-
+    renderPropertyList();
 }
 
+/* =========================================================
+   DATA LOADING
+   ========================================================= */
 
-/* ===============================
-   REVIEWED PROPERTIES
-================================ */
+async function initialize() {
 
-function renderReviewed() {
-
-  const reviews = [];
-
-
-  for (
-    let i = 0;
-    i < localStorage.length;
-    i++
-  ) {
-
-    const key =
-      localStorage.key(i);
-
-
-    if (
-      !key ||
-      !key.startsWith(
-        "sully-review-"
-      )
-    ) {
-      continue;
-    }
-
+    setMapStatus("Loading Sully source files...");
 
     try {
 
-      reviews.push(
-        JSON.parse(
-          localStorage.getItem(key)
-        )
-      );
+        const [csvResponse, zoningResponse] = await Promise.all([
+            fetch(CSV_PATH),
+            fetch(ZONING_PATH)
+        ]);
+
+        if (!csvResponse.ok) {
+            throw new Error(
+                "Could not load " + CSV_PATH
+            );
+        }
+
+        if (!zoningResponse.ok) {
+            throw new Error(
+                "Could not load " + ZONING_PATH
+            );
+        }
+
+        const csvText = await csvResponse.text();
+        landBank = parseTolemiCSV(csvText);
+
+        zoningMaps = await zoningResponse.json();
+
+        document.getElementById("totalCount").textContent =
+            landBank.length.toLocaleString();
+
+        refreshReviewedCount();
+
+        calculateWorldBounds();
+        renderZoningMaps();
+        renderMapList();
+        renderSourceList();
+        renderPropertyList();
+
+        requestAnimationFrame(() => {
+            fitAllZoning();
+        });
+
+        setMapStatus(
+            `${zoningMaps.length} PDF zoning maps loaded · ` +
+            `${landBank.length.toLocaleString()} Land Bank opportunities loaded`
+        );
 
     } catch (error) {
 
-      console.error(error);
+        console.error(error);
 
+        setMapStatus(
+            "Data loading error: " + error.message
+        );
     }
-
-  }
-
-
-  const container =
-    document.getElementById(
-      "reviewedList"
-    );
-
-
-  if (!reviews.length) {
-
-    container.innerHTML =
-      "No properties reviewed yet.";
-
-    return;
-
-  }
-
-
-  container.innerHTML = "";
-
-
-  reviews.forEach(review => {
-
-    const item =
-      document.createElement("div");
-
-
-    item.className = "result";
-
-
-    item.innerHTML = `
-      <strong>
-        ${escapeHTML(review.address)}
-      </strong>
-
-      <span>
-        ${escapeHTML(review.zoning || "No zoning")}
-        •
-        ${escapeHTML(review.decision || "Not reviewed")}
-        •
-        ${escapeHTML(review.priority || "No priority")}
-      </span>
-    `;
-
-
-    item.addEventListener(
-      "click",
-      () => {
-
-        const property =
-          opportunities.find(
-            row =>
-              parcelID(row) ===
-              review.parcelID
-          );
-
-
-        if (property) {
-          selectProperty(property);
-        }
-
-      }
-    );
-
-
-    container.appendChild(item);
-
-  });
-
 }
 
+/* =========================================================
+   TOLEMI CSV PARSER
+   Handles:
+   Filters:
 
-/* ===============================
-   TABS
-================================ */
+   "Parcel ID","Address"
+   ="0123...","address"
+   ========================================================= */
 
-document.querySelectorAll(
-  ".tab"
-).forEach(tab => {
+function parseTolemiCSV(text) {
 
-  tab.addEventListener(
-    "click",
-    () => {
+    const lines = text
+        .replace(/\r/g, "")
+        .split("\n");
 
-      showTab(
-        tab.dataset.tab
-      );
+    let headerIndex = lines.findIndex(line => {
+        const lower = line.toLowerCase();
 
+        return (
+            lower.includes("parcel id") &&
+            lower.includes("address")
+        );
+    });
+
+    if (headerIndex === -1) {
+        throw new Error("Parcel ID / Address header was not found in CSV.");
     }
-  );
 
+    const records = [];
+
+    for (let i = headerIndex + 1; i < lines.length; i++) {
+
+        const raw = lines[i].trim();
+
+        if (!raw) continue;
+
+        const fields = parseCSVLine(raw);
+
+        if (fields.length < 2) continue;
+
+        let parcelId = cleanCSVValue(fields[0]);
+        let address = cleanCSVValue(fields.slice(1).join(","));
+
+        address = address
+            .replace(/\s+,/g, ",")
+            .replace(/\s{2,}/g, " ")
+            .trim();
+
+        if (!parcelId || !address) continue;
+
+        records.push({
+            parcelId,
+            address
+        });
+    }
+
+    return records;
+}
+
+function parseCSVLine(line) {
+
+    const values = [];
+    let current = "";
+    let insideQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+
+        const char = line[i];
+
+        if (char === '"') {
+
+            if (
+                insideQuotes &&
+                line[i + 1] === '"'
+            ) {
+                current += '"';
+                i++;
+            } else {
+                insideQuotes = !insideQuotes;
+            }
+
+        } else if (
+            char === "," &&
+            !insideQuotes
+        ) {
+
+            values.push(current);
+            current = "";
+
+        } else {
+
+            current += char;
+        }
+    }
+
+    values.push(current);
+
+    return values;
+}
+
+function cleanCSVValue(value) {
+
+    let output = String(value ?? "").trim();
+
+    if (
+        output.startsWith('="') &&
+        output.endsWith('"')
+    ) {
+        output = output.slice(2, -1);
+    }
+
+    if (
+        output.startsWith('"') &&
+        output.endsWith('"')
+    ) {
+        output = output.slice(1, -1);
+    }
+
+    return output
+        .replace(/""/g, '"')
+        .trim();
+}
+
+/* =========================================================
+   GEOGRAPHIC MAP PLACEMENT
+   ========================================================= */
+
+function calculateWorldBounds() {
+
+    const south = Math.min(
+        ...zoningMaps.map(map => Number(map.bounds.south))
+    );
+
+    const west = Math.min(
+        ...zoningMaps.map(map => Number(map.bounds.west))
+    );
+
+    const north = Math.max(
+        ...zoningMaps.map(map => Number(map.bounds.north))
+    );
+
+    const east = Math.max(
+        ...zoningMaps.map(map => Number(map.bounds.east))
+    );
+
+    worldBounds = {
+        south,
+        west,
+        north,
+        east
+    };
+}
+
+function lonToX(lon) {
+
+    return (
+        (lon - worldBounds.west) /
+        (worldBounds.east - worldBounds.west)
+    ) * WORLD_WIDTH;
+}
+
+function latToY(lat) {
+
+    return (
+        (worldBounds.north - lat) /
+        (worldBounds.north - worldBounds.south)
+    ) * WORLD_HEIGHT;
+}
+
+function renderZoningMaps() {
+
+    zoningLayer.innerHTML = "";
+    labelLayer.innerHTML = "";
+
+    zoningMaps.forEach((map, index) => {
+
+        const westX = lonToX(Number(map.bounds.west));
+        const eastX = lonToX(Number(map.bounds.east));
+
+        const northY = latToY(Number(map.bounds.north));
+        const southY = latToY(Number(map.bounds.south));
+
+        const width = eastX - westX;
+        const height = southY - northY;
+
+        const image = document.createElement("img");
+
+        image.className = "zoning-image";
+        image.src = map.file;
+        image.alt = `${map.name} zoning map`;
+        image.title = map.name;
+        image.dataset.slug = map.slug;
+
+        image.style.left = westX + "px";
+        image.style.top = northY + "px";
+        image.style.width = width + "px";
+        image.style.height = height + "px";
+
+        image.style.opacity =
+            document.getElementById("opacitySlider").value / 100;
+
+        image.style.zIndex = 100 + index;
+
+        image.onerror = function() {
+            console.error(
+                "Could not load zoning image:",
+                map.file
+            );
+        };
+
+        zoningLayer.appendChild(image);
+
+        const label = document.createElement("div");
+
+        label.className = "map-label";
+        label.dataset.slug = map.slug;
+        label.textContent = map.name;
+
+        label.style.left =
+            (westX + width / 2) + "px";
+
+        label.style.top =
+            (northY + height / 2) + "px";
+
+        labelLayer.appendChild(label);
+    });
+}
+
+/* =========================================================
+   MAP TRANSFORM
+   ========================================================= */
+
+function applyTransform() {
+
+    world.style.transform =
+        `translate(${offsetX}px, ${offsetY}px) scale(${mapScale})`;
+}
+
+function fitAllZoning() {
+
+    const width = viewport.clientWidth;
+    const height = viewport.clientHeight;
+
+    if (!width || !height) return;
+
+    const padding = 45;
+
+    const scaleX =
+        (width - padding * 2) / WORLD_WIDTH;
+
+    const scaleY =
+        (height - padding * 2) / WORLD_HEIGHT;
+
+    mapScale = Math.min(scaleX, scaleY);
+
+    offsetX =
+        (width - WORLD_WIDTH * mapScale) / 2;
+
+    offsetY =
+        (height - WORLD_HEIGHT * mapScale) / 2;
+
+    applyTransform();
+}
+
+function zoomMap(factor, centerX, centerY) {
+
+    const rect = viewport.getBoundingClientRect();
+
+    if (centerX === undefined) {
+        centerX = rect.width / 2;
+    }
+
+    if (centerY === undefined) {
+        centerY = rect.height / 2;
+    }
+
+    const oldScale = mapScale;
+
+    const newScale = Math.max(
+        0.18,
+        Math.min(8, oldScale * factor)
+    );
+
+    const worldX =
+        (centerX - offsetX) / oldScale;
+
+    const worldY =
+        (centerY - offsetY) / oldScale;
+
+    offsetX =
+        centerX - worldX * newScale;
+
+    offsetY =
+        centerY - worldY * newScale;
+
+    mapScale = newScale;
+
+    applyTransform();
+}
+
+function focusMap(map) {
+
+    const westX = lonToX(Number(map.bounds.west));
+    const eastX = lonToX(Number(map.bounds.east));
+
+    const northY = latToY(Number(map.bounds.north));
+    const southY = latToY(Number(map.bounds.south));
+
+    const mapWidth = eastX - westX;
+    const mapHeight = southY - northY;
+
+    const viewportWidth = viewport.clientWidth;
+    const viewportHeight = viewport.clientHeight;
+
+    const scaleX =
+        (viewportWidth * .82) / mapWidth;
+
+    const scaleY =
+        (viewportHeight * .82) / mapHeight;
+
+    mapScale = Math.min(
+        Math.max(.2, Math.min(scaleX, scaleY)),
+        6
+    );
+
+    const centerX =
+        westX + mapWidth / 2;
+
+    const centerY =
+        northY + mapHeight / 2;
+
+    offsetX =
+        viewportWidth / 2 - centerX * mapScale;
+
+    offsetY =
+        viewportHeight / 2 - centerY * mapScale;
+
+    applyTransform();
+
+    setMapStatus(
+        `Viewing ${map.name} · Source: ${map.sourcePdf}`
+    );
+}
+
+/* =========================================================
+   MAP INTERACTION
+   ========================================================= */
+
+viewport.addEventListener("mousedown", event => {
+
+    isDragging = true;
+
+    viewport.classList.add("dragging");
+
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
+
+    dragOriginX = offsetX;
+    dragOriginY = offsetY;
 });
 
+window.addEventListener("mousemove", event => {
 
-function showTab(name) {
+    if (!isDragging) return;
 
-  document.querySelectorAll(
-    ".tab"
-  ).forEach(tab => {
+    offsetX =
+        dragOriginX +
+        event.clientX -
+        dragStartX;
 
-    tab.classList.toggle(
-      "active",
-      tab.dataset.tab === name
-    );
+    offsetY =
+        dragOriginY +
+        event.clientY -
+        dragStartY;
 
-  });
+    applyTransform();
+});
 
+window.addEventListener("mouseup", () => {
 
-  document.querySelectorAll(
-    ".panel"
-  ).forEach(panel => {
+    isDragging = false;
+    viewport.classList.remove("dragging");
+});
 
-    panel.classList.toggle(
-      "active",
-      panel.id === name
-    );
+viewport.addEventListener(
+    "wheel",
+    event => {
 
-  });
+        event.preventDefault();
 
+        const rect =
+            viewport.getBoundingClientRect();
 
-  if (name === "reviewed") {
-    renderReviewed();
-  }
+        const x =
+            event.clientX - rect.left;
 
+        const y =
+            event.clientY - rect.top;
+
+        const factor =
+            event.deltaY < 0 ? 1.14 : .88;
+
+        zoomMap(factor, x, y);
+    },
+    { passive: false }
+);
+
+document.getElementById("zoomIn")
+    .addEventListener("click", () => {
+        zoomMap(1.25);
+    });
+
+document.getElementById("zoomOut")
+    .addEventListener("click", () => {
+        zoomMap(.8);
+    });
+
+document.getElementById("fitAll")
+    .addEventListener("click", fitAllZoning);
+
+window.addEventListener(
+    "resize",
+    fitAllZoning
+);
+
+/* =========================================================
+   MAP LAYER CONTROLS
+   ========================================================= */
+
+document.getElementById("zoningToggle")
+    .addEventListener("change", event => {
+
+        zoningLayer.style.display =
+            event.target.checked
+                ? "block"
+                : "none";
+    });
+
+document.getElementById("labelToggle")
+    .addEventListener("change", event => {
+
+        labelLayer.style.display =
+            event.target.checked
+                ? "block"
+                : "none";
+    });
+
+document.getElementById("opacitySlider")
+    .addEventListener("input", event => {
+
+        const opacity =
+            Number(event.target.value) / 100;
+
+        document
+            .querySelectorAll(".zoning-image")
+            .forEach(image => {
+                image.style.opacity = opacity;
+            });
+    });
+
+/* =========================================================
+   COMMUNITY MAP LIST
+   ========================================================= */
+
+function renderMapList() {
+
+    const container =
+        document.getElementById("mapList");
+
+    container.innerHTML = "";
+
+    zoningMaps
+        .slice()
+        .sort((a, b) =>
+            a.name.localeCompare(b.name)
+        )
+        .forEach(map => {
+
+            const row =
+                document.createElement("div");
+
+            row.className = "map-item";
+
+            const name =
+                document.createElement("span");
+
+            name.textContent = map.name;
+
+            const button =
+                document.createElement("button");
+
+            button.textContent = "View";
+
+            button.addEventListener(
+                "click",
+                () => focusMap(map)
+            );
+
+            row.appendChild(name);
+            row.appendChild(button);
+
+            container.appendChild(row);
+        });
 }
 
+/* =========================================================
+   LAND BANK LIST
+   ========================================================= */
 
-/* ===============================
-   SECURITY
-================================ */
+function getFilteredLandBank() {
+
+    const search =
+        document
+            .getElementById("searchInput")
+            .value
+            .trim()
+            .toLowerCase();
+
+    if (!search) {
+        return landBank;
+    }
+
+    return landBank.filter(property => {
+
+        return (
+            property.address
+                .toLowerCase()
+                .includes(search) ||
+
+            property.parcelId
+                .toLowerCase()
+                .includes(search)
+        );
+    });
+}
+
+function renderPropertyList() {
+
+    const container =
+        document.getElementById(
+            "propertyResults"
+        );
+
+    container.innerHTML = "";
+
+    const filtered =
+        getFilteredLandBank();
+
+    document.getElementById(
+        "resultCount"
+    ).textContent =
+        `${filtered.length.toLocaleString()} results`;
+
+    const fragment =
+        document.createDocumentFragment();
+
+    /*
+      Render the first 250 visible results at once.
+      Search still covers all 1,430 records.
+      This keeps the browser responsive.
+    */
+
+    filtered
+        .slice(0, 250)
+        .forEach(property => {
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "property-row" +
+                (
+                    selectedParcelId === property.parcelId
+                        ? " active"
+                        : ""
+                );
+
+            const review =
+                reviews[property.parcelId];
+
+            let badgeHTML =
+                `<span class="mini-badge pending">Not reviewed</span>`;
+
+            if (review?.zoning) {
+
+                if (
+                    QUALIFYING_ZONES.has(
+                        review.zoning
+                    )
+                ) {
+
+                    badgeHTML =
+                        `<span class="mini-badge yes">YES · ${review.zoning}</span>`;
+
+                } else {
+
+                    badgeHTML =
+                        `<span class="mini-badge no">NO · ${review.zoning}</span>`;
+                }
+            }
+
+            row.innerHTML = `
+                <div class="property-address">
+                    ${escapeHTML(property.address)}
+                </div>
+
+                <div class="property-id">
+                    Parcel ${escapeHTML(property.parcelId)}
+                </div>
+
+                ${badgeHTML}
+            `;
+
+            row.addEventListener(
+                "click",
+                () => selectProperty(property)
+            );
+
+            fragment.appendChild(row);
+        });
+
+    container.appendChild(fragment);
+
+    if (filtered.length > 250) {
+
+        const more =
+            document.createElement("div");
+
+        more.style.fontSize = "10px";
+        more.style.color = "#6B7280";
+        more.style.textAlign = "center";
+        more.style.padding = "10px";
+
+        more.textContent =
+            `Showing first 250 of ${filtered.length.toLocaleString()}. ` +
+            `Use search to narrow the list.`;
+
+        container.appendChild(more);
+    }
+}
+
+document.getElementById("searchInput")
+    .addEventListener(
+        "input",
+        renderPropertyList
+    );
+
+/* =========================================================
+   SELECT PROPERTY
+   ========================================================= */
+
+function selectProperty(property) {
+
+    selectedParcelId =
+        property.parcelId;
+
+    renderPropertyList();
+
+    showPanel("propertyPanel");
+
+    renderPropertyDetail(property);
+}
+
+function renderPropertyDetail(property) {
+
+    const empty =
+        document.getElementById("emptyState");
+
+    const detail =
+        document.getElementById("propertyDetail");
+
+    empty.style.display = "none";
+    detail.style.display = "block";
+
+    const saved =
+        reviews[property.parcelId] || {};
+
+    const zoning =
+        saved.zoning || "";
+
+    const qualification =
+        evaluateZoning(zoning);
+
+    let optionsHTML =
+        ZONING_OPTIONS.map(zone => {
+
+            const label =
+                zone || "Select zoning";
+
+            const selected =
+                zoning === zone
+                    ? "selected"
+                    : "";
+
+            return `
+                <option
+                    value="${escapeHTML(zone)}"
+                    ${selected}
+                >
+                    ${escapeHTML(label)}
+                </option>
+            `;
+        }).join("");
+
+    detail.innerHTML = `
+
+        <div class="detail-address">
+            ${escapeHTML(property.address)}
+        </div>
+
+        <div class="detail-id">
+            Parcel ID: ${escapeHTML(property.parcelId)}
+        </div>
+
+        <div
+            id="qualificationCard"
+            class="status-card ${qualification.className}"
+        >
+            <strong>${qualification.title}</strong>
+            <span>${qualification.message}</span>
+        </div>
+
+        <div class="field">
+            <label>PDF zoning classification</label>
+
+            <select id="detailZoning">
+                ${optionsHTML}
+            </select>
+
+            <div class="help">
+                Enter the zoning shown on the supplied Birmingham PDF map.
+                Sully's permanent screen is automatic.
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Decision</label>
+
+            <select id="detailDecision">
+                <option value="">Select decision</option>
+                <option value="Pursue"
+                    ${saved.decision === "Pursue" ? "selected" : ""}>
+                    Pursue
+                </option>
+                <option value="Hold"
+                    ${saved.decision === "Hold" ? "selected" : ""}>
+                    Hold
+                </option>
+                <option value="Reject"
+                    ${saved.decision === "Reject" ? "selected" : ""}>
+                    Reject
+                </option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Priority</label>
+
+            <select id="detailPriority">
+                <option value="">Select priority</option>
+                <option value="High"
+                    ${saved.priority === "High" ? "selected" : ""}>
+                    High
+                </option>
+                <option value="Medium"
+                    ${saved.priority === "Medium" ? "selected" : ""}>
+                    Medium
+                </option>
+                <option value="Low"
+                    ${saved.priority === "Low" ? "selected" : ""}>
+                    Low
+                </option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Estimated parking spaces</label>
+
+            <input
+                id="detailSpaces"
+                type="number"
+                min="0"
+                value="${escapeHTML(saved.spaces || "")}"
+                placeholder="Example: 120"
+            >
+        </div>
+
+        <div class="field">
+            <label>Site condition</label>
+
+            <select id="detailCondition">
+                <option value="">Select condition</option>
+                <option value="Vacant land"
+                    ${saved.condition === "Vacant land" ? "selected" : ""}>
+                    Vacant land
+                </option>
+                <option value="Paved"
+                    ${saved.condition === "Paved" ? "selected" : ""}>
+                    Paved
+                </option>
+                <option value="Partially paved"
+                    ${saved.condition === "Partially paved" ? "selected" : ""}>
+                    Partially paved
+                </option>
+                <option value="Structure present"
+                    ${saved.condition === "Structure present" ? "selected" : ""}>
+                    Structure present
+                </option>
+                <option value="Unknown"
+                    ${saved.condition === "Unknown" ? "selected" : ""}>
+                    Unknown
+                </option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Utilities</label>
+
+            <select id="detailUtilities">
+                <option value="">Select status</option>
+                <option value="Available"
+                    ${saved.utilities === "Available" ? "selected" : ""}>
+                    Available
+                </option>
+                <option value="Not available"
+                    ${saved.utilities === "Not available" ? "selected" : ""}>
+                    Not available
+                </option>
+                <option value="Needs verification"
+                    ${saved.utilities === "Needs verification" ? "selected" : ""}>
+                    Needs verification
+                </option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Entertainment / destination fit</label>
+
+            <select id="detailFit">
+                <option value="">Select fit</option>
+                <option value="Strong"
+                    ${saved.fit === "Strong" ? "selected" : ""}>
+                    Strong
+                </option>
+                <option value="Moderate"
+                    ${saved.fit === "Moderate" ? "selected" : ""}>
+                    Moderate
+                </option>
+                <option value="Weak"
+                    ${saved.fit === "Weak" ? "selected" : ""}>
+                    Weak
+                </option>
+                <option value="Needs review"
+                    ${saved.fit === "Needs review" ? "selected" : ""}>
+                    Needs review
+                </option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Acquisition / price notes</label>
+
+            <input
+                id="detailPrice"
+                type="text"
+                value="${escapeHTML(saved.price || "")}"
+                placeholder="Enter supplied or researched price later"
+            >
+        </div>
+
+        <div class="field">
+            <label>Site notes</label>
+
+            <textarea
+                id="detailNotes"
+                placeholder="Add Sully site review notes..."
+            >${escapeHTML(saved.notes || "")}</textarea>
+        </div>
+
+        <div id="saveNote" class="save-note"></div>
+    `;
+
+    [
+        "detailZoning",
+        "detailDecision",
+        "detailPriority",
+        "detailSpaces",
+        "detailCondition",
+        "detailUtilities",
+        "detailFit",
+        "detailPrice",
+        "detailNotes"
+    ].forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        element.addEventListener(
+            "change",
+            () => savePropertyReview(property)
+        );
+
+        if (
+            element.tagName === "INPUT" ||
+            element.tagName === "TEXTAREA"
+        ) {
+            element.addEventListener(
+                "input",
+                debounce(
+                    () => savePropertyReview(property),
+                    350
+                )
+            );
+        }
+    });
+}
+
+/* =========================================================
+   SAVE REVIEW
+   ========================================================= */
+
+function savePropertyReview(property) {
+
+    const zoning =
+        document.getElementById("detailZoning").value;
+
+    reviews[property.parcelId] = {
+
+        address: property.address,
+
+        parcelId: property.parcelId,
+
+        zoning,
+
+        qualifies:
+            zoning
+                ? QUALIFYING_ZONES.has(zoning)
+                : null,
+
+        decision:
+            document.getElementById("detailDecision").value,
+
+        priority:
+            document.getElementById("detailPriority").value,
+
+        spaces:
+            document.getElementById("detailSpaces").value,
+
+        condition:
+            document.getElementById("detailCondition").value,
+
+        utilities:
+            document.getElementById("detailUtilities").value,
+
+        fit:
+            document.getElementById("detailFit").value,
+
+        price:
+            document.getElementById("detailPrice").value,
+
+        notes:
+            document.getElementById("detailNotes").value,
+
+        updatedAt:
+            new Date().toISOString()
+    };
+
+    saveReviews();
+
+    updateQualificationCard(zoning);
+
+    const note =
+        document.getElementById("saveNote");
+
+    if (note) {
+
+        note.textContent =
+            "Saved to this browser.";
+
+        setTimeout(() => {
+            if (note) note.textContent = "";
+        }, 1200);
+    }
+}
+
+function evaluateZoning(zoning) {
+
+    if (!zoning) {
+
+        return {
+            className: "pending",
+            title: "Zoning not reviewed",
+            message:
+                "Select the zoning shown on the supplied PDF map."
+        };
+    }
+
+    if (QUALIFYING_ZONES.has(zoning)) {
+
+        return {
+            className: "yes",
+            title: `YES ✓ ${zoning}`,
+            message:
+                "Qualifies under Sully's permanent-site zoning screen."
+        };
+    }
+
+    return {
+        className: "no",
+        title: `NO ✕ ${zoning}`,
+        message:
+            "Does not qualify under Sully's permanent-site zoning screen."
+    };
+}
+
+function updateQualificationCard(zoning) {
+
+    const card =
+        document.getElementById(
+            "qualificationCard"
+        );
+
+    if (!card) return;
+
+    const result =
+        evaluateZoning(zoning);
+
+    card.className =
+        `status-card ${result.className}`;
+
+    card.innerHTML = `
+        <strong>${result.title}</strong>
+        <span>${result.message}</span>
+    `;
+}
+
+/* =========================================================
+   REVIEWED SITES
+   ========================================================= */
+
+function refreshReviewedCount() {
+
+    document.getElementById(
+        "reviewedCount"
+    ).textContent =
+        Object.keys(reviews).length.toLocaleString();
+}
+
+function renderReviewed() {
+
+    const container =
+        document.getElementById("reviewList");
+
+    container.innerHTML = "";
+
+    const entries =
+        Object.values(reviews)
+            .sort((a, b) => {
+
+                const priorityOrder = {
+                    High: 1,
+                    Medium: 2,
+                    Low: 3
+                };
+
+                return (
+                    (priorityOrder[a.priority] || 9) -
+                    (priorityOrder[b.priority] || 9)
+                );
+            });
+
+    if (!entries.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                No Land Bank opportunities have been reviewed yet.
+            </div>
+        `;
+
+        return;
+    }
+
+    entries.forEach(review => {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "review-card";
+
+        const status =
+            review.zoning
+                ? (
+                    review.qualifies
+                        ? `YES · ${review.zoning}`
+                        : `NO · ${review.zoning}`
+                )
+                : "Zoning pending";
+
+        card.innerHTML = `
+            <strong>
+                ${escapeHTML(review.address)}
+            </strong>
+
+            <span>
+                ${escapeHTML(status)}
+                ${review.decision ? " · " + escapeHTML(review.decision) : ""}
+                ${review.priority ? " · " + escapeHTML(review.priority) : ""}
+            </span>
+        `;
+
+        card.addEventListener(
+            "click",
+            () => {
+
+                const property =
+                    landBank.find(
+                        item =>
+                            item.parcelId === review.parcelId
+                    );
+
+                if (property) {
+                    selectProperty(property);
+                }
+            }
+        );
+
+        container.appendChild(card);
+    });
+}
+
+/* =========================================================
+   EXPORT REVIEWS
+   ========================================================= */
+
+document.getElementById("exportReviews")
+    .addEventListener("click", () => {
+
+        const rows =
+            Object.values(reviews);
+
+        if (!rows.length) {
+            alert(
+                "No reviewed sites to export yet."
+            );
+
+            return;
+        }
+
+        const columns = [
+            "parcelId",
+            "address",
+            "zoning",
+            "qualifies",
+            "decision",
+            "priority",
+            "spaces",
+            "condition",
+            "utilities",
+            "fit",
+            "price",
+            "notes",
+            "updatedAt"
+        ];
+
+        const csv = [
+            columns.join(","),
+            ...rows.map(row =>
+                columns.map(column =>
+                    csvEscape(row[column])
+                ).join(",")
+            )
+        ].join("\n");
+
+        const blob =
+            new Blob(
+                [csv],
+                { type: "text/csv;charset=utf-8;" }
+            );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        link.download =
+            "sully-reviewed-sites.csv";
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+        URL.revokeObjectURL(url);
+    });
+
+/* =========================================================
+   SOURCE LIST
+   ========================================================= */
+
+function renderSourceList() {
+
+    const container =
+        document.getElementById(
+            "sourceMapList"
+        );
+
+    container.innerHTML = "";
+
+    zoningMaps
+        .slice()
+        .sort((a, b) =>
+            a.name.localeCompare(b.name)
+        )
+        .forEach(map => {
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "source-card";
+
+            card.innerHTML = `
+                <strong>
+                    ${escapeHTML(map.name)}
+                </strong>
+
+                <span>
+                    ${escapeHTML(map.sourcePdf)}
+                    <br>
+                    ${escapeHTML(map.file)}
+                </span>
+            `;
+
+            container.appendChild(card);
+        });
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+document
+    .querySelectorAll(".tab")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                showPanel(
+                    button.dataset.panel
+                );
+            }
+        );
+    });
+
+function showPanel(panelId) {
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(tab => {
+
+            tab.classList.toggle(
+                "active",
+                tab.dataset.panel === panelId
+            );
+        });
+
+    document
+        .querySelectorAll(".panel")
+        .forEach(panel => {
+
+            panel.classList.toggle(
+                "active",
+                panel.id === panelId
+            );
+        });
+}
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function setMapStatus(message) {
+
+    document.getElementById(
+        "mapStatus"
+    ).textContent = message;
+}
 
 function escapeHTML(value) {
 
-  const element =
-    document.createElement("div");
-
-  element.textContent =
-    String(value || "");
-
-  return element.innerHTML;
-
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
+function csvEscape(value) {
 
-/* ===============================
+    const text =
+        value === null ||
+        value === undefined
+            ? ""
+            : String(value);
+
+    return `"${text.replace(/"/g, '""')}"`;
+}
+
+function debounce(fn, delay) {
+
+    let timer;
+
+    return function(...args) {
+
+        clearTimeout(timer);
+
+        timer = setTimeout(
+            () => fn.apply(this, args),
+            delay
+        );
+    };
+}
+
+/* =========================================================
    START
-================================ */
+   ========================================================= */
 
-async function startApp() {
-
-  await loadLandBankInventory();
-
-  renderReviewed();
-
-}
-
-
-startApp();
+initialize();
 
 </script>
 
